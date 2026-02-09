@@ -22,7 +22,7 @@ namespace Capa.Web.Controllers
         public async Task<IActionResult> ListaEstudia()
         {
             var response = await _estudiantesRepository.GetListAsync();
-            return StatusCode(StatusCodes.Status200OK, new { data = response.Result });
+            return StatusCode(StatusCodes.Status200OK, response);
         }
 
         [HttpPost]
@@ -41,6 +41,26 @@ namespace Capa.Web.Controllers
             // Aquí estudianteDTO YA TIENE los datos (Nombres, NroCi) y el archivo (PhotoFile)
             // No necesitas deserializar nada.
             var response = await _estudiantesRepository.AddAsync(estudianteDTO);
+
+            return StatusCode(StatusCodes.Status200OK, response);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Editar([FromForm] EstudianteDTO estudianteDTO)
+        {
+            // Validación automática de Data Annotations ([Required], [MaxLength], etc.)
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(StatusCodes.Status200OK, new ActionResponse<bool>
+                {
+                    WasSuccess = false,
+                    Message = "Faltan campos obligatorios o son incorrectos."
+                });
+            }
+
+            // Aquí estudianteDTO YA TIENE los datos (Nombres, NroCi) y el archivo (PhotoFile)
+            // No necesitas deserializar nada.
+            var response = await _estudiantesRepository.UpdateAsync(estudianteDTO);
 
             return StatusCode(StatusCodes.Status200OK, response);
         }

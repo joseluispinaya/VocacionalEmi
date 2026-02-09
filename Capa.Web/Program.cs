@@ -19,6 +19,9 @@ builder.Services.AddScoped<IFileStorage, FileStorage>();
 
 builder.Services.AddScoped<IUnidadesEduRepository, UnidadesEduRepository>();
 builder.Services.AddScoped<IEstudiantesRepository, EstudiantesRepository>();
+builder.Services.AddScoped<ICuestionariosRepository, CuestionariosRepository>();
+builder.Services.AddScoped<IPreguntasRepository, PreguntasRepository>();
+//builder.Services.AddScoped<ICuestionariosRepository, CuestionariosRepository>();
 
 var app = builder.Build();
 

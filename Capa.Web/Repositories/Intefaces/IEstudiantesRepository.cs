@@ -7,6 +7,8 @@ namespace Capa.Web.Repositories.Intefaces
     public interface IEstudiantesRepository
     {
         Task<ActionResponse<bool>> AddAsync(EstudianteDTO estudianteDTO);
+        Task<ActionResponse<bool>> UpdateAsync(EstudianteDTO estudianteDTO);
+        //Task<ActionResponse<bool>> UpdateAsync(EstudianteDTO estudianteDTO);
         Task<ActionResponse<IEnumerable<ListEstDTO>>> GetListAsync();
     }
 }

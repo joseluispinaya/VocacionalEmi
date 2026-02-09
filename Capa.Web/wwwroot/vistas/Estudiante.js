@@ -11,7 +11,16 @@ $(function () {
         "ajax": {
             "url": "/Estudiantes/ListaEstudia",
             "type": "GET",
-            "datatype": "json"
+            "datatype": "json",
+            "dataSrc": function (json) {
+
+                if (!json.wasSuccess) {
+                    // Retornamos un array vacío para que DataTables no se rompa
+                    return [];
+                }
+
+                return json.result || [];
+            }
         },
         "columns": [
             { "data": "id", "visible": false, "searchable": false },
@@ -204,41 +213,39 @@ $("#btnGuardar").on("click", function () {
         return;
     }
 
-    const fileInput = document.getElementById('txtImagen');
     const formData = new FormData();
-
-    formData.append("Id", idEditar);
+    formData.append("Id", idEditar); // Importante: Si es 0 es nuevo, si tiene valor es edición
     formData.append("NroCi", $("#txtNroci").val().trim());
     formData.append("Nombres", $("#txtnombres").val().trim());
     formData.append("Apellidos", $("#txtapellidos").val().trim());
     formData.append("Correo", $("#txtCorreo").val().trim());
     formData.append("UnidadEducativaId", $("#cboUnidadEd").val());
 
+    // Solo agregamos la foto si el usuario seleccionó una nueva
+    const fileInput = document.getElementById('txtImagen');
     if (fileInput.files.length > 0) {
         formData.append("PhotoFile", fileInput.files[0]);
     }
 
     $(`#${modal}`).find("div.modal-content").LoadingOverlay("show");
 
-    if (idEditar != 0) {
+    // LÓGICA DE URL:
+    // Si idEditar es 0 -> Vamos a Guardar
+    // Si idEditar es > 0 -> Vamos a Editar
+    const urlAction = idEditar === 0 ? "/Estudiantes/Guardar" : "/Estudiantes/Editar";
 
-        $(`#${modal}`).find("div.modal-content").LoadingOverlay("hide");
-        habilitarBoton();
-
-        swal("Mensaje!", "Falta implementar la opción de edición.", "warning");
-        //tablaData.ajax.reload(null, false);
-        return;
-    }
+    // RECOMENDACIÓN: Usa POST siempre cuando hay archivos involucrados para evitar problemas de binding en .NET
+    const typeAction = "POST"; 
+    
     $.ajax({
-        url: "/Estudiantes/Guardar",
-        type: "POST",
+        url: urlAction,
+        type: typeAction,
         data: formData,
         contentType: false,
         processData: false,
         success: function (response) {
 
             $(`#${modal}`).find("div.modal-content").LoadingOverlay("hide");
-            habilitarBoton();
 
             if (response.wasSuccess) {
 
@@ -256,9 +263,11 @@ $("#btnGuardar").on("click", function () {
         error: function () {
 
             $(`#${modal}`).find("div.modal-content").LoadingOverlay("hide");
-            habilitarBoton();
-
             swal("Error", "Error de comunicación con el servidor.", "error");
+        },
+        complete: function () {
+            // ¡Excelente uso del complete! Esto reactiva el botón pase lo que pase.
+            habilitarBoton();
         }
     });
 });

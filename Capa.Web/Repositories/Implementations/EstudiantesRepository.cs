@@ -94,5 +94,71 @@ namespace Capa.Web.Repositories.Implementations
                 Result = estudiantes
             };
         }
+
+        public async Task<ActionResponse<bool>> UpdateAsync(EstudianteDTO estudianteDTO)
+        {
+            // 1. Buscar la entidad (EF Core ya la empieza a rastrear aquí)
+            var estModel = await _context.Estudiantes.FindAsync(estudianteDTO.Id);
+            if (estModel == null)
+            {
+                return new ActionResponse<bool> { WasSuccess = false, Message = "Registro no encontrado." };
+            }
+
+            string? rutaFotoVieja = estModel.Photo;
+            string? rutaFotoNueva = null;
+
+            // 2. Manejo de la NUEVA foto (Subida preliminar)
+            if (estudianteDTO.PhotoFile != null)
+            {
+                rutaFotoNueva = await _fileStorage.UploadFileAsync(estudianteDTO.PhotoFile, "estudiante");
+                // Asignamos la nueva ruta al modelo
+                estModel.Photo = rutaFotoNueva;
+            }
+
+            // 3. Actualizar el resto de propiedades
+            estModel.NroCi = estudianteDTO.NroCi;
+            estModel.Nombres = estudianteDTO.Nombres;
+            estModel.Apellidos = estudianteDTO.Apellidos;
+            estModel.Correo = estudianteDTO.Correo;
+            estModel.UnidadEducativaId = estudianteDTO.UnidadEducativaId;
+
+            // No es necesario _context.Update(estModel);
+
+            try
+            {
+                // 4. Intentar guardar en BD
+                await _context.SaveChangesAsync();
+
+                // ÉXITO: Si llegamos aquí, la BD ya se actualizó.
+                // Ahora sí es seguro borrar la foto VIEJA (si es que subimos una nueva y había una vieja)
+                if (rutaFotoNueva != null && !string.IsNullOrWhiteSpace(rutaFotoVieja))
+                {
+                    await _fileStorage.RemoveFileAsync(rutaFotoVieja, "estudiante");
+                }
+
+                return new ActionResponse<bool> { WasSuccess = true, Result = true, Message = "Estudiante actualizado correctamente." };
+            }
+            catch (DbUpdateException)
+            {
+                // ERROR DE BD: (Ej. CI duplicado)
+                // Rollback del archivo: Borramos la foto NUEVA que acabamos de subir para no dejar basura.
+                if (rutaFotoNueva != null)
+                {
+                    await _fileStorage.RemoveFileAsync(rutaFotoNueva, "estudiante");
+                }
+
+                return new ActionResponse<bool> { WasSuccess = false, Message = "Ya existe un estudiante con el Nro CI." };
+            }
+            catch (Exception)
+            {
+                // ERROR GENERAL
+                // Rollback del archivo también aquí
+                if (rutaFotoNueva != null)
+                {
+                    await _fileStorage.RemoveFileAsync(rutaFotoNueva, "estudiante");
+                }
+                return new ActionResponse<bool> { WasSuccess = false, Message = "Ocurrió un error al actualizar, intente más tarde." };
+            }
+        }
     }
 }

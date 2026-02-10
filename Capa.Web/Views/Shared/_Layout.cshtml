@@ -116,12 +116,21 @@
                             </a>
                         </li>
 
-                        <li>
+                        @* <li>
                             <a class="waves-effect" asp-controller="Cuestionarios" asp-action="Index">
                                 <i class="mdi mdi-layers"></i><span>
                                     Cuestionarios
                                 </span>
                             </a>
+                        </li> *@
+
+                        <li class="has_sub">
+                            <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-album"></i> <span> Cuestionarios </span> <span class="float-right"><i class="mdi mdi-plus"></i></span></a>
+                            <ul class="list-unstyled">
+                                <li><a asp-controller="Cuestionarios" asp-action="Index">Cuestionario</a></li>
+                                <li><a asp-controller="Preguntas" asp-action="Index">Preguntas</a></li>
+                                <li><a href="#">Tabs &amp; Accordions</a></li>
+                            </ul>
                         </li>
 
                         <li class="has_sub">

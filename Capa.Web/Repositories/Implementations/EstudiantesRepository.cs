@@ -63,6 +63,40 @@ namespace Capa.Web.Repositories.Implementations
             }
         }
 
+        public async Task<ActionResponse<ListEstDTO>> GetEstudiante(string nroCi)
+        {
+            var estudiante = await _context.Estudiantes
+                .Include(x => x.UnidadEducativa)
+                .Where(x => x.NroCi == nroCi)
+                .Select(x => new ListEstDTO
+                {
+                    Id = x.Id,
+                    NroCi = x.NroCi,
+                    Nombres = x.Nombres,
+                    Apellidos = x.Apellidos,
+                    Correo = x.Correo,
+                    Photo = x.Photo,
+                    UnidadEducativaId = x.UnidadEducativaId,
+                    UnidadEducativa = x.UnidadEducativa.Nombre
+                }).FirstOrDefaultAsync();
+
+            if (estudiante == null)
+            {
+                return new ActionResponse<ListEstDTO>
+                {
+                    WasSuccess = false,
+                    Message = "Estudiante no encontrado."
+                };
+            }
+
+            return new ActionResponse<ListEstDTO>
+            {
+                WasSuccess = true,
+                Message = "Estudiante obtenido correctamente.",
+                Result = estudiante
+            };
+        }
+
         public async Task<ActionResponse<IEnumerable<ListEstDTO>>> GetListAsync()
         {
             var estudiantes = await _context.Estudiantes.Include(x => x.UnidadEducativa)
@@ -93,6 +127,11 @@ namespace Capa.Web.Repositories.Implementations
                 Message = "Lista obtenida correctamente.",
                 Result = estudiantes
             };
+        }
+
+        public Task<ActionResponse<ListEstDTO>> LoginEstAsync(LoginEstDTO model)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<ActionResponse<bool>> UpdateAsync(EstudianteDTO estudianteDTO)

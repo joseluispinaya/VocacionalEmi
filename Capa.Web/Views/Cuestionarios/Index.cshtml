@@ -106,5 +106,13 @@
 
     <script src="~/assets/plugins/datatables/dataTables.responsive.min.js"></script>
     <script src="~/assets/plugins/datatables/responsive.bootstrap4.min.js"></script>
+
+    <script>
+        const _urlLista = '@Url.Action("ListaCuestionarios", "Cuestionarios")';
+        const _urlGuardar = '@Url.Action("Guardar", "Cuestionarios")';
+        const _urlEditar = '@Url.Action("Editar", "Cuestionarios")';
+        const _urlDetalle = '@Url.Action("DetalleCuestionario", "Cuestionarios")';
+    </script>
+
     <script src="~/vistas/Cuestionarios.js" asp-append-version="true"></script>
 }

@@ -16,7 +16,8 @@ $(function () {
     tablaData = $('#tbData').DataTable({
         responsive: true,
         "ajax": {
-            "url": "/Cuestionarios/ListaCuestionarios",
+            // "url": "/Cuestionarios/ListaCuestionarios",
+            "url": _urlLista,
             "type": "GET",
             "datatype": "json",
             // AQUÍ ESTÁ EL TRUCO: dataSrc como función
@@ -143,7 +144,8 @@ function detalleCuestionario(cuestionarioId) {
         paging: true,
         info: false,
         "ajax": {
-            "url": "/Cuestionarios/DetalleCuestionario",
+            // "url": "/Cuestionarios/DetalleCuestionario",
+            "url": _urlDetalle,
             "type": "GET",
             "datatype": "json",
             "data": {
@@ -204,7 +206,8 @@ $("#btnGuardar").on("click", function () {
 
     $("#mdAddCuesti").find("div.modal-content").LoadingOverlay("show");
 
-    const urlAction = idEditar === 0 ? "/Cuestionarios/Guardar" : "/Cuestionarios/Editar";
+    // const urlAction = idEditar === 0 ? "/Cuestionarios/Guardar" : "/Cuestionarios/Editar";
+    const urlAction = idEditar === 0 ? _urlGuardar : _urlEditar;
     const typeAction = idEditar === 0 ? "POST" : "PUT";
 
     $.ajax({
